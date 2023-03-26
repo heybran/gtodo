@@ -8,7 +8,7 @@ import (
 	"github.com/heybran/todo-app"
 	"log"
 	// "io"
-	// "os"
+	"os"
 	// "strings"
 )
 
@@ -17,6 +17,12 @@ const (
 )
 
 func main() {
+	// Define the "add" subcommand to add todo item
+	// 定义"add"子命令来添加待办事项
+	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
+	// Define an optional "--cat" flag for the todo item
+	todoCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
+	
 	var add bool
 	var task string
 	var complete int
@@ -35,6 +41,8 @@ func main() {
 	flag.BoolVar(&update, "update", false, "update todo task")
 	flag.IntVar(&id, "id", 0, "todo id to delete")
 
+	// Parse the command line arguments
+	// 解析命令行参数
 	flag.Parse()
 
 	// https://pkg.go.dev/flag#hdr-Usage
@@ -57,6 +65,42 @@ func main() {
 	if err := todos.Load(todoFile); err != nil {
 		log.Fatal(err)
 	}
+
+	// Check which subcommand was invoked
+	// 检查调用了哪个子命令
+	switch flag.Arg(0) {
+	case "add":
+		// Parse the arguments for the "add" subcommand
+		// 解析"add"子命令的参数
+		fmt.Printf("os args: %s\n", os.Args)
+		addCmd.Parse(os.Args[2:])
+
+		// Check if the required todo text was provided
+		// 检查是否提供了必需的待办事项文本
+		if addCmd.NArg() == 0 {
+			fmt.Println("Error: the todo text is required for the 'add' subcommand")
+			os.Exit(1)		
+		}
+
+		// Get the todo text from the positional argument
+		// 从位置参数中获取待办事项文本
+		todoText := addCmd.Arg(0)
+		// fmt.Printf("%s\n", todoText)
+		// 将待办事项和类别添加到Todos slice中
+		todos.Add(todoText, *todoCat)
+		// 将Todos slice写入todoFile文件中
+		err := todos.Store(todoFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		todos.Print()
+		fmt.Println("Todo item added successfully")
+	default:
+		fmt.Println("Error: invalid subcommand")
+		os.Exit(1)
+	}
+
+	return
 
 	switch {
 	case add:
