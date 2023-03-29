@@ -22,6 +22,10 @@ func main() {
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	// Define an optional "--cat" flag for the todo item
 	todoCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
+
+	// listCmd := flag.NewFlagSet("list", flag.ExitOnError)
+	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	todoID := deleteCmd.Int("id", 0, "The id of todo to be delete")
 	
 	var add bool
 	var task string
@@ -95,6 +99,27 @@ func main() {
 		}
 		todos.Print()
 		fmt.Println("Todo item added successfully")
+	case "list":
+		todos.Print()
+	case "delete":
+		deleteCmd.Parse(os.Args[2:])
+		// if deleteCmd.NArg() == 0 {
+		// 	fmt.Println("Error: the todo id is required for the 'delete' subcommand")
+		// 	os.Exit(1)
+		// }
+
+		err := todos.Delete(*todoID)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = todos.Store(todoFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		todos.Print()
+		
 	default:
 		fmt.Println("Error: invalid subcommand")
 		os.Exit(1)

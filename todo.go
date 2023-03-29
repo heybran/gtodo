@@ -79,7 +79,6 @@ func (t *Todos) Update(index int, task string, cat string, complete int) error {
 // Delete will delete requested task from slice Todos
 func (t *Todos) Delete(index int) error {
 	ls := *t
-	fmt.Print(index)
 	if index <= 0 || index > len(ls) {
 		return errors.New("invalid index")
 	}
