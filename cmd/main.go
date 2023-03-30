@@ -21,11 +21,18 @@ func main() {
 	// 定义"add"子命令来添加待办事项
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
 	// Define an optional "--cat" flag for the todo item
-	todoCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
+	addCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
 
 	// listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
-	todoID := deleteCmd.Int("id", 0, "The id of todo to be delete")
+	// If no --id=1 flag defined, todoID will default to 0
+	// but if --id is present but didn't set any value, an error will be thrown
+	deleteID := deleteCmd.Int("id", 0, "The id of todo to be delete")
+
+	updateCmd := flag.NewFlagSet("update", flag.ExitOnError)
+	updateID := updateCmd.Int("id", 0, "The id of todo to be updated")
+	updateCat := updateCmd.String("cat", "", "The to-be-updated category of todo")
+	updateTask := updateCmd.String("task", "", "To to-be-updated content of todo")
 	
 	var add bool
 	var task string
@@ -37,13 +44,13 @@ func main() {
 	var id int
 
 	flag.BoolVar(&add, "add", false, "add a new todo")
-	flag.StringVar(&task, "task", "", "todo task content")
+	// flag.StringVar(&task, "task", "", "todo task content")
 	flag.IntVar(&complete, "complete", 2, "mark a todo as completed")
 	flag.BoolVar(&delete, "delete", false, "delete a todo")
 	flag.BoolVar(&list, "list", false, "list all todos")
-	flag.StringVar(&cat, "cat", "", "set todo category")
+	// flag.StringVar(&cat, "cat", "", "set todo category")
 	flag.BoolVar(&update, "update", false, "update todo task")
-	flag.IntVar(&id, "id", 0, "todo id to delete")
+	// flag.IntVar(&id, "id", 0, "todo id to delete")
 
 	// Parse the command line arguments
 	// 解析命令行参数
@@ -91,7 +98,7 @@ func main() {
 		todoText := addCmd.Arg(0)
 		// fmt.Printf("%s\n", todoText)
 		// 将待办事项和类别添加到Todos slice中
-		todos.Add(todoText, *todoCat)
+		todos.Add(todoText, *addCat)
 		// 将Todos slice写入todoFile文件中
 		err := todos.Store(todoFile)
 		if err != nil {
@@ -103,12 +110,8 @@ func main() {
 		todos.Print()
 	case "delete":
 		deleteCmd.Parse(os.Args[2:])
-		// if deleteCmd.NArg() == 0 {
-		// 	fmt.Println("Error: the todo id is required for the 'delete' subcommand")
-		// 	os.Exit(1)
-		// }
 
-		err := todos.Delete(*todoID)
+		err := todos.Delete(*deleteID)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -119,7 +122,21 @@ func main() {
 		}
 
 		todos.Print()
-		
+
+	case "update":
+		updateCmd.Parse(os.Args[2:])
+
+		err := todos.Update(*updateID, *updateTask, *updateCat)
+		if err != nil {
+			log.Fatal(err)		
+		}
+
+		err = todos.Store(todoFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		todos.Print()
+		fmt.Println("Todo item added successfully")
 	default:
 		fmt.Println("Error: invalid subcommand")
 		os.Exit(1)
@@ -139,17 +156,6 @@ func main() {
 
 		todos.Add(task, cat)
 		err := todos.Store(todoFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		todos.Print()
-
-	case update:
-		err := todos.Update(id, task, cat, complete)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = todos.Store(todoFile)
 		if err != nil {
 			log.Fatal(err)
 		}

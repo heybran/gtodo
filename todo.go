@@ -51,7 +51,7 @@ func (t *Todos) Complete(index int) error {
 
 // Update will update task related to specific id,
 // it will update task content or task category, how to make it work?
-func (t *Todos) Update(index int, task string, cat string, complete int) error {
+func (t *Todos) Update(index int, task string, cat string) error {
 	ls := *t
 	if index <= 0 || index > len(ls) {
 		return errors.New("invalid index")
@@ -63,14 +63,6 @@ func (t *Todos) Update(index int, task string, cat string, complete int) error {
 
 	if len(cat) != 0 {
 		ls[index-1].Category = cat
-	}
-
-	if complete == 1 {
-		ls[index-1].Done = true
-		ls[index-1].CompletedAt = time.Now()
-	} else if complete == 0 {
-		ls[index-1].Done = false
-		ls[index-1].CompletedAt = time.Time{}
 	}
 
 	return nil
