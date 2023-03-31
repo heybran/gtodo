@@ -18,8 +18,8 @@ const (
 
 func main() {
 	// Define the "add" subcommand to add todo item
-	// 定义"add"子命令来添加待办事项
 	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
+	addTask := addCmd.String("task", "", "The content of new todo item")
 	// Define an optional "--cat" flag for the todo item
 	addCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
 
@@ -27,49 +27,16 @@ func main() {
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
 	// If no --id=1 flag defined, todoID will default to 0
 	// but if --id is present but didn't set any value, an error will be thrown
-	deleteID := deleteCmd.Int("id", 0, "The id of todo to be delete")
+	deleteID := deleteCmd.Int("id", 0, "The id of todo to be deleted")
 
 	updateCmd := flag.NewFlagSet("update", flag.ExitOnError)
 	updateID := updateCmd.Int("id", 0, "The id of todo to be updated")
 	updateCat := updateCmd.String("cat", "", "The to-be-updated category of todo")
 	updateTask := updateCmd.String("task", "", "To to-be-updated content of todo")
+	updateDone := updateCmd.Int("done", 2, "The to-be-updated status of todo")
 	
-	var add bool
-	var task string
-	var complete int
-	var delete bool
-	var list bool
-	var cat string
-	var update bool
-	var id int
-
-	flag.BoolVar(&add, "add", false, "add a new todo")
-	// flag.StringVar(&task, "task", "", "todo task content")
-	flag.IntVar(&complete, "complete", 2, "mark a todo as completed")
-	flag.BoolVar(&delete, "delete", false, "delete a todo")
-	flag.BoolVar(&list, "list", false, "list all todos")
-	// flag.StringVar(&cat, "cat", "", "set todo category")
-	flag.BoolVar(&update, "update", false, "update todo task")
-	// flag.IntVar(&id, "id", 0, "todo id to delete")
-
 	// Parse the command line arguments
-	// 解析命令行参数
 	flag.Parse()
-
-	// https://pkg.go.dev/flag#hdr-Usage
-	// will print: %!t(*bool=0xc0001a2002)
-	// fmt.Printf("%t\n", add)
-
-	// go run cmd/main.go -add
-	// go run cmd/main.go --add
-	// will all print true
-	// fmt.Printf("%t\n", *add)
-
-	fmt.Printf("Cat: %s\n", cat)
-	fmt.Printf("Complete: %d\n", complete)
-	fmt.Printf("Delete: %t\n", delete)
-	fmt.Printf("Add: %t\n", add)
-	fmt.Printf("Task: %s\n", task)
 
 	todos := &todo.Todos{}
 
@@ -78,32 +45,32 @@ func main() {
 	}
 
 	// Check which subcommand was invoked
-	// 检查调用了哪个子命令
 	switch flag.Arg(0) {
 	case "add":
 		// Parse the arguments for the "add" subcommand
-		// 解析"add"子命令的参数
-		fmt.Printf("os args: %s\n", os.Args)
 		addCmd.Parse(os.Args[2:])
 
 		// Check if the required todo text was provided
-		// 检查是否提供了必需的待办事项文本
-		if addCmd.NArg() == 0 {
-			fmt.Println("Error: the todo text is required for the 'add' subcommand")
+
+		// if we're going with this route: todo add --task="Hello World" --cat="Hi"
+		// then addCmd.NArg() will be 0
+		// if addCmd.NArg() == 0 {
+		// 	fmt.Println("Error: the todo text is required for the 'add' subcommand")
+		// 	os.Exit(1)		
+		// }
+
+		if len(*addTask) == 0 {
+			fmt.Println("Error: the --task flag is required for the 'add' subcommand")
 			os.Exit(1)		
 		}
 
 		// Get the todo text from the positional argument
-		// 从位置参数中获取待办事项文本
-		todoText := addCmd.Arg(0)
-		// fmt.Printf("%s\n", todoText)
-		// 将待办事项和类别添加到Todos slice中
-		todos.Add(todoText, *addCat)
-		// 将Todos slice写入todoFile文件中
+		todos.Add(*addTask, *addCat)
 		err := todos.Store(todoFile)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		todos.Print()
 		fmt.Println("Todo item added successfully")
 	case "list":
@@ -122,11 +89,15 @@ func main() {
 		}
 
 		todos.Print()
-
+		fmt.Println("Todo item deleted successfully")
 	case "update":
 		updateCmd.Parse(os.Args[2:])
 
-		err := todos.Update(*updateID, *updateTask, *updateCat)
+		if *updateID == 0 {
+			fmt.Println("Error: the --id flag is required for the 'update' subcommand")
+			os.Exit(1)		
+		}
+		err := todos.Update(*updateID, *updateTask, *updateCat, *updateDone)
 		if err != nil {
 			log.Fatal(err)		
 		}
@@ -135,49 +106,12 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		todos.Print()
-		fmt.Println("Todo item added successfully")
+		fmt.Println("Todo item updated successfully")
 	default:
 		fmt.Println("Error: invalid subcommand")
 		os.Exit(1)
-	}
-
-	return
-
-	switch {
-	case add:
-		// if run: go run cmd/main.go -add hello world
-		// will print: [hello world]
-		// fmt.Print(flag.Args());
-		// task, err := getInput(os.Stdin, flag.Args()...)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-
-		todos.Add(task, cat)
-		err := todos.Store(todoFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		todos.Print()
-
-	case list:
-		todos.Print()
-
-	case delete:
-		fmt.Print(delete)
-		err := todos.Delete(id)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = todos.Store(todoFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		todos.Print()
-
-	default:
-		log.Fatal("invalid command")
 	}
 }
 
