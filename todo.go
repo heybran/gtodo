@@ -37,21 +37,21 @@ func (t *Todos) Add(task string, cat string) {
 }
 
 // Complete will mark requested task as completed
-func (t *Todos) Complete(index int) error {
-	ls := *t
-	if index <= 0 || index > len(ls) {
-		return errors.New("invalid index")
-	}
+// not needed as this functionality is handled by Update() func
+// func (t *Todos) Complete(index int) error {
+// 	ls := *t
+// 	if index <= 0 || index > len(ls) {
+// 		return errors.New("invalid index")
+// 	}
 
-	ls[index-1].Done = true
-	ls[index-1].CompletedAt = time.Now()
+// 	ls[index-1].Done = true
+// 	ls[index-1].CompletedAt = time.Now()
 
-	return nil
-}
+// 	return nil
+// }
 
-// Update will update task related to specific id,
-// it will update task content or task category, how to make it work?
-func (t *Todos) Update(index int, task string, cat string) error {
+// Update will update task related to specific id
+func (t *Todos) Update(index int, task string, cat string, done int) error {
 	ls := *t
 	if index <= 0 || index > len(ls) {
 		return errors.New("invalid index")
@@ -63,6 +63,14 @@ func (t *Todos) Update(index int, task string, cat string) error {
 
 	if len(cat) != 0 {
 		ls[index-1].Category = cat
+	}
+
+	if done == 0 {
+		ls[index-1].Done = false
+		ls[index-1].CompletedAt = time.Time{}
+	} else if done == 1 {
+		ls[index-1].Done = true
+		ls[index-1].CompletedAt = time.Now()
 	}
 
 	return nil
