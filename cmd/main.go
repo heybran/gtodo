@@ -34,6 +34,9 @@ func main() {
 	updateCat := updateCmd.String("cat", "", "The to-be-updated category of todo")
 	updateTask := updateCmd.String("task", "", "To to-be-updated content of todo")
 	updateDone := updateCmd.Int("done", 2, "The to-be-updated status of todo")
+
+	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
+	listDone := listCmd.Int("done", 2, "The status of todo to be printed")
 	
 	// Parse the command line arguments
 	flag.Parse()
@@ -71,10 +74,12 @@ func main() {
 			log.Fatal(err)
 		}
 
-		todos.Print()
+		todos.Print(2)
 		fmt.Println("Todo item added successfully")
 	case "list":
-		todos.Print()
+		// Parse the arguments for the "list" subcommand
+		listCmd.Parse(os.Args[2:])
+		todos.Print(*listDone)
 	case "delete":
 		deleteCmd.Parse(os.Args[2:])
 
@@ -88,7 +93,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		todos.Print()
+		todos.Print(2)
 		fmt.Println("Todo item deleted successfully")
 	case "update":
 		updateCmd.Parse(os.Args[2:])
@@ -107,7 +112,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		todos.Print()
+		todos.Print(2)
 		fmt.Println("Todo item updated successfully")
 	default:
 		fmt.Println("Error: invalid subcommand")

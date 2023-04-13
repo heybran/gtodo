@@ -118,7 +118,7 @@ func (t *Todos) Store(filename string) error {
 }
 
 // Print will print out the current todo tasks
-func (t *Todos) Print() {
+func (t *Todos) Print(status int) {
 	table := simpletable.New()
 
 	table.Header = &simpletable.Header{
@@ -134,7 +134,27 @@ func (t *Todos) Print() {
 
 	var cells [][]*simpletable.Cell
 
-	for i, item := range *t {
+	requestedTodos := []item{}
+
+	for _, todo := range *t {
+		if status == 1 {
+			if todo.Done {
+				requestedTodos = append(requestedTodos, todo)
+			}
+		}
+
+		if status == 0 {
+			if !todo.Done {
+				requestedTodos = append(requestedTodos, todo)
+			}
+		}
+
+		if status != 1 && status != 0 {
+			requestedTodos = append(requestedTodos, todo)
+		}
+	}
+
+	for i, item := range requestedTodos {
 		i++
 		task := item.Task
 		done := "No"
