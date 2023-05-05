@@ -38,10 +38,6 @@ func main() {
 
 	todos := &todo.Todos{}
 
-	if err := todos.Load(getJsonFile()); err != nil {
-		log.Fatal(err)
-	}
-
 	// Check which subcommand was invoked
 	switch flag.Arg(0) {
 	case "init":
@@ -66,14 +62,15 @@ func main() {
 					log.Fatal(err)
 				}
 				defer file.Close()
-				fmt.Println("Succefully create a \".todos.json\" file in your home directory")
+				fmt.Println("Succefully create a \".todos.json\" file in your home directory.")
 			} else {
-				log.Fatal("Unknown error occurred")
+				log.Fatal("Unknown error occurred.")
 			}
 		} else {
-			fmt.Print(".todos.json file exists in your home directory already")	
+			fmt.Print(".todos.json file exists in your home directory already.")	
 		}
 	case "add":
+		remindInit(todos)
 		// Parse the arguments for the "add" subcommand
 		addCmd.Parse(os.Args[2:])
 
@@ -87,7 +84,7 @@ func main() {
 		// }
 
 		if len(*addTask) == 0 {
-			fmt.Println("Error: the --task flag is required for the 'add' subcommand")
+			fmt.Println("Error: the --task flag is required for the 'add' subcommand.")
 			os.Exit(1)		
 		}
 
@@ -99,12 +96,14 @@ func main() {
 		}
 
 		todos.Print(2)
-		fmt.Println("Todo item added successfully")
+		fmt.Println("Todo item added successfully.")
 	case "list":
+		remindInit(todos)
 		// Parse the arguments for the "list" subcommand
 		listCmd.Parse(os.Args[2:])
 		todos.Print(*listDone)
 	case "delete":
+		remindInit(todos)
 		deleteCmd.Parse(os.Args[2:])
 
 		err := todos.Delete(*deleteID)
@@ -118,12 +117,13 @@ func main() {
 		}
 
 		todos.Print(2)
-		fmt.Println("Todo item deleted successfully")
+		fmt.Println("Todo item deleted successfully.")
 	case "update":
+		remindInit(todos)
 		updateCmd.Parse(os.Args[2:])
 
 		if *updateID == 0 {
-			fmt.Println("Error: the --id flag is required for the 'update' subcommand")
+			fmt.Println("Error: the --id flag is required for the 'update' subcommand.")
 			os.Exit(1)		
 		}
 		err := todos.Update(*updateID, *updateTask, *updateCat, *updateDone)
@@ -137,10 +137,23 @@ func main() {
 		}
 
 		todos.Print(2)
-		fmt.Println("Todo item updated successfully")
+		fmt.Println("Todo item updated successfully.")
 	default:
-		fmt.Println("Error: invalid subcommand")
+		fmt.Println("Error: invalid subcommand.")
 		os.Exit(1)
+	}
+}
+
+func remindInit(todos *todo.Todos) {
+	// check if .todos.json already exists in user home directory
+	_, err := os.Stat(getJsonFile())
+	if err != nil {
+		fmt.Println("Please run \"init\" subcommand to create an JSON file to store your todo items.")
+		os.Exit(1)
+	} else {
+		if err := todos.Load(getJsonFile()); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
