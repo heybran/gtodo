@@ -16,7 +16,7 @@ type item struct {
 	Category    string
 	Done        bool
 	CreatedAt   time.Time
-	CompletedAt time.Time
+	CompletedAt *time.Time
 }
 
 // []item - slice
@@ -29,7 +29,7 @@ func (t *Todos) Add(task string, cat string) {
 		Category:    cat,
 		Done:        false,
 		CreatedAt:   time.Now(),
-		CompletedAt: time.Time{},
+		CompletedAt: nil, // set to nil instead of time.Time{}
 	}
 
 	// add a new task to Todos slice
@@ -65,12 +65,18 @@ func (t *Todos) Update(index int, task string, cat string, done int) error {
 		ls[index-1].Category = cat
 	}
 
+	// The error occurs because we are trying to assign a value of type time.Time
+	// to a variable of type *time.Time.
+	// To fix this, we can use the new() function to create a new pointer to time.Time
+	// and assign it to CompletedAt.
+	// By using &completedAt, we create a new pointer to time.Time that points to the completedAt variable
 	if done == 0 {
 		ls[index-1].Done = false
-		ls[index-1].CompletedAt = time.Time{}
+		ls[index-1].CompletedAt = nil
 	} else if done == 1 {
 		ls[index-1].Done = true
-		ls[index-1].CompletedAt = time.Now()
+		completedAt := time.Now()
+		ls[index-1].CompletedAt = &completedAt // create a new pointer to time.Time
 	}
 
 	return nil
@@ -158,17 +164,25 @@ func (t *Todos) Print(status int) {
 		i++
 		task := item.Task
 		done := "No"
+		completedAt := ""
+
 		if item.Done {
 			task = fmt.Sprintf(item.Task)
 			done = "\u2705"
 		}
+
+		if item.CompletedAt != nil {
+			completedAt = item.CompletedAt.Format("2006-01-02")
+		}
+
 		cells = append(cells, *&[]*simpletable.Cell{
 			{Text: fmt.Sprintf("%d", i)},
 			{Text: item.Category},
 			{Text: task},
 			{Text: done},
-			{Text: item.CreatedAt.Format(time.RFC822)},
-			{Text: item.CompletedAt.Format(time.RFC822)},
+			{Text: item.CreatedAt.Format("2006-01-02")},
+			// {Text: item.CompletedAt.Format("2006-01-02")},
+			{Text: completedAt},
 		})
 	}
 
