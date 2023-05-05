@@ -1,19 +1,14 @@
 package main
 
 import (
-	// "bufio"
-	// "errors"
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/heybran/todo-app"
 	"log"
-	// "io"
 	"os"
-	// "strings"
-)
-
-const (
-	todoFile = "/Users/brandon/codes/heybran/todos.json"
+	"strings"
+	"path/filepath"
 )
 
 func main() {
@@ -43,12 +38,41 @@ func main() {
 
 	todos := &todo.Todos{}
 
-	if err := todos.Load(todoFile); err != nil {
+	if err := todos.Load(getJsonFile()); err != nil {
 		log.Fatal(err)
 	}
 
 	// Check which subcommand was invoked
 	switch flag.Arg(0) {
+	case "init":
+		ok := getUserApproval()
+		if !ok {
+			fmt.Print("You've declined to create the JSON file. You can always run \"init\" subcommand again if you change your mind.")	
+			os.Exit(0)
+		}
+		
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		filepath := filepath.Join(homeDir, ".todos.json")
+		// check if .todos.json already exists in user home directory
+		_, err = os.Stat(filepath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				file, err := os.Create(filepath)
+				if err != nil {
+					log.Fatal(err)
+				}
+				defer file.Close()
+				fmt.Println("Succefully create a \".todos.json\" file in your home directory")
+			} else {
+				log.Fatal("Unknown error occurred")
+			}
+		} else {
+			fmt.Print(".todos.json file exists in your home directory already")	
+		}
 	case "add":
 		// Parse the arguments for the "add" subcommand
 		addCmd.Parse(os.Args[2:])
@@ -69,7 +93,7 @@ func main() {
 
 		// Get the todo text from the positional argument
 		todos.Add(*addTask, *addCat)
-		err := todos.Store(todoFile)
+		err := todos.Store(getJsonFile())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -88,7 +112,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		err = todos.Store(todoFile)
+		err = todos.Store(getJsonFile())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -107,7 +131,7 @@ func main() {
 			log.Fatal(err)		
 		}
 
-		err = todos.Store(todoFile)
+		err = todos.Store(getJsonFile())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -120,25 +144,34 @@ func main() {
 	}
 }
 
-// getInput will get the input task typed in terminal
-// func getInput(r io.Reader, args ...string) (string, error) {
-// 	if len(args) > 0 {
-// 		return strings.Join(args, " "), nil
-// 	}
+// getJsonFile will grab the .todos.json file located at user home directory
+func getJsonFile() (string) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// 	// if len(args) means we type in: go run cmd/main.go -add
-// 	// then NewScanner returns a new Scanner to read from user input
-// 	scanner := bufio.NewScanner(r)
-// 	scanner.Scan()
-// 	if err := scanner.Err(); err != nil {
-// 		return "", err
-// 	}
+	return filepath.Join(homeDir, ".todos.json")
+}
 
-// 	text := scanner.Text()
+// getUserApproval will get the user's approval when creating an empty json file
+func getUserApproval() (bool) {
+	confirmMessage := "Need to create an empty \".todos.json\" file in your home directory to store your todo items, continue? (y/n): "
 
-// 	if len(text) == 0 {
-// 		return "", errors.New("You didn't type in any task though...")
-// 	}
+	r := bufio.NewReader(os.Stdin)
+	var s string
 
-// 	return text, nil
-// }
+	fmt.Print(confirmMessage)
+	s, _ = r.ReadString('\n')
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+
+	for {
+		if s == "y" || s == "yes" {
+			return true
+		}
+		if s == "n" || s == "no" {
+			return false
+		}
+	}
+}
