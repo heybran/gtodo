@@ -17,6 +17,7 @@ builds:
       - linux
       - windows
       - darwin
+    tag: v0.1.4
 
 archives:
   - format: tar.gz
