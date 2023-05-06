@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/heybran/todo-app"
+	"github.com/heybran/gtodo"
 	"log"
 	"os"
 	"strings"

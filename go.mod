@@ -1,4 +1,4 @@
-module github.com/heybran/todo-app
+module github.com/heybran/gtodo
 
 go 1.19
 
