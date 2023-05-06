@@ -1,3 +1,7 @@
+<p>
+  <img src="https://github.com/heybran/gtodo/blob/main/screenshot.png">
+</p>
+
 ## How To Install?
 ### Using [`GO`](https://go.dev/dl) toolchain
 
