@@ -9,7 +9,6 @@ before:
 builds:
   - id: build1
     binary: gtodo
-    main: ./cmd/main.go
     env:
       - CGO_ENABLED=0
     goos:
