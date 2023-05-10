@@ -7,7 +7,10 @@ This is a simple command-line todo application written in Go. It allows you to c
 
 ## Installation
 To install the application, you will need to have Go installed on your system. Once you have installed Go, you can download and install the application using the following command:
-go install github.com/your-username/gtodo
+
+```bash
+go install github.com/heybran/gtodo
+```
 This will download the source code and install the application in your `$GOPATH/bin` directory.
 
 ## After Installation
@@ -21,7 +24,7 @@ To use the application, simply run the `gtodo` command followed by one of the fo
 	•	`delete`: Delete a task.
 Each subcommand has its own set of options and arguments. Here are some examples of how to use the application:
 
-```
+```bash
 # Add a new task
 gtodo add -task "Recording tutorials on web components :host selector" -cat "Tutorial"
 
