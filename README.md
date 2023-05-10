@@ -13,15 +13,16 @@ go install github.com/heybran/gtodo
 ```
 This will download the source code and install the application in your `$GOPATH/bin` directory.
 
-## After Installation
-Run `gtodo init` to generate an empty JSON file in your home directory to store todo tasks.
-
 ## Usage
+Be sure to run `gtodo init` to generate an empty JSON file in your home directory to store todo tasks.
+
 To use the application, simply run the `gtodo` command followed by one of the following subcommands:
-	•	`add`: Add a new task.
-	•	`list`: List all tasks.
-	•	`update`: Update the details of an existing task.
-	•	`delete`: Delete a task.
+
+- `add`: Add a new task.
+- `list`: List all tasks.
+- `update`: Update the details of an existing task.
+- `delete`: Delete a task.
+
 Each subcommand has its own set of options and arguments. Here are some examples of how to use the application:
 
 ```bash
