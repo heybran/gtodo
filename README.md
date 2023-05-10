@@ -2,51 +2,42 @@
   <img src="https://github.com/heybran/gtodo/blob/main/screenshot.png">
 </p>
 
-## How To Install?
-### Using [`GO`](https://go.dev/dl) toolchain
+# Go CLI Todo App
+This is a simple command-line todo application written in Go. It allows you to create, read, update, and delete tasks into/from a local JSON file.
 
-```sh
-go install github.com/heybran/gtodo@main
-```
+## Installation
+To install the application, you will need to have Go installed on your system. Once you have installed Go, you can download and install the application using the following command:
+go install github.com/your-username/gtodo
+This will download the source code and install the application in your `$GOPATH/bin` directory.
+
+## After Installation
+Run `gtodo init` to generate an empty JSON file in your home directory to store todo tasks.
 
 ## Usage
+To use the application, simply run the `gtodo` command followed by one of the following subcommands:
+	•	`add`: Add a new task.
+	•	`list`: List all tasks.
+	•	`update`: Update the details of an existing task.
+	•	`delete`: Delete a task.
+Each subcommand has its own set of options and arguments. Here are some examples of how to use the application:
 
-### Init
-You need to run `init` subcommand to create an empty JSON file to store your todo items.
-
-```bash
-gtodo init
 ```
+# Add a new task
+gtodo add -task "Recording tutorials on web components :host selector" -cat "Tutorial"
 
-### Add
-- `-task` flag for the todo content.
-- `-cat` flag for the todo category, will default to `Uncategorized` if not provided.
-
-```bash
-gtodo add -task="Record tutorial for this cli todo app" -cat="Tutorial"
-```
-
-### List
-
-```bash
+# List all tasks
 gtodo list
-```
 
-### Delete
-- `-id` flag for the id of todo to be deleted.
-```bash
-gtodo delete -id=1
-```
+# Update an existing task
+gtodo update -id 1 -task "Hrmm, maybe write a blog post about :host selector instead"
+gtodo update -id 1 -cat "Blog"
 
-### Update
-#### Marked a todo as `done`
-```bash
-gtodo update -id=1 -done=1
+# Delete a task
+gtodo delete -id 1
 ```
+  
+## Contributing
+If you find a bug or have a feature request, please open an issue on the GitHub repository. Pull requests are also welcome!
 
-#### Update todo content
-- `-task` to update content of this todo item.
-- `-cat` to update category of this todo item.
-```bash
-gtodo update -id=1 -task="Hrmm, maybe just write a blog post for this cli todo app" -cat="Blog"
-```
+## License
+This application is licensed under the MIT License. See the ﻿LICENSE file for details.
