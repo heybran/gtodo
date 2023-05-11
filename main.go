@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/heybran/gtodo/todo"
+	"github.com/heybran/gtodo/cmd"
 	"log"
 	"os"
 	"strings"
@@ -12,12 +13,6 @@ import (
 )
 
 func main() {
-	// Define the "add" subcommand to add todo item
-	addCmd := flag.NewFlagSet("add", flag.ExitOnError)
-	addTask := addCmd.String("task", "", "The content of new todo item")
-	// Define an optional "--cat" flag for the todo item
-	addCat := addCmd.String("cat", "Uncategorized", "The category of the todo item")
-
 	// listCmd := flag.NewFlagSet("list", flag.ExitOnError)
 	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
 	// If no --id=1 flag defined, todoID will default to 0
@@ -30,8 +25,6 @@ func main() {
 	updateTask := updateCmd.String("task", "", "To to-be-updated content of todo")
 	updateDone := updateCmd.Int("done", 2, "The to-be-updated status of todo")
 
-	listCmd := flag.NewFlagSet("list", flag.ExitOnError)
-	listDone := listCmd.Int("done", 2, "The status of todo to be printed")
 	
 	// Parse the command line arguments
 	flag.Parse()
@@ -71,37 +64,10 @@ func main() {
 		}
 	case "add":
 		remindInit(todos)
-		// Parse the arguments for the "add" subcommand
-		addCmd.Parse(os.Args[2:])
-
-		// Check if the required todo text was provided
-
-		// if we're going with this route: todo add --task="Hello World" --cat="Hi"
-		// then addCmd.NArg() will be 0
-		// if addCmd.NArg() == 0 {
-		// 	fmt.Println("Error: the todo text is required for the 'add' subcommand")
-		// 	os.Exit(1)		
-		// }
-
-		if len(*addTask) == 0 {
-			fmt.Println("Error: the --task flag is required for the 'add' subcommand.")
-			os.Exit(1)		
-		}
-
-		// Get the todo text from the positional argument
-		todos.Add(*addTask, *addCat)
-		err := todos.Store(getJsonFile())
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		todos.Print(2)
-		fmt.Println("Todo item added successfully.")
+		cmd.AddTask(todos, os.Args[2:])
 	case "list":
 		remindInit(todos)
-		// Parse the arguments for the "list" subcommand
-		listCmd.Parse(os.Args[2:])
-		todos.Print(*listDone)
+		cmd.ListTasks(todos, os.Args[2:])
 	case "delete":
 		remindInit(todos)
 		deleteCmd.Parse(os.Args[2:])
