@@ -14,6 +14,10 @@ func main() {
 
 	// Check which subcommand was invoked
 	switch flag.Arg(0) {
+	case "":
+		cmd.Help()
+	case "help":
+		cmd.Help()
 	case "init":
 		cmd.Init()
 	case "add":
@@ -29,7 +33,7 @@ func main() {
 		cmd.RemindInit(todos)
 		cmd.UpdateTask(todos, os.Args[2:])
 	default:
-		fmt.Println("Error: invalid subcommand.")
+		fmt.Println("Invalid command. Please use 'help' command to see available commands.")
 		os.Exit(1)
 	}
 }
