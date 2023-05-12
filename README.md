@@ -9,7 +9,7 @@ This is a simple command-line todo application written in Go. It allows you to c
 To install the application, you will need to have Go installed on your system. Once you have installed Go, you can download and install the application using the following command:
 
 ```bash
-go install github.com/heybran/gtodo
+go install github.com/heybran/gtodo@latest
 ```
 This will download the source code and install the application in your `$GOPATH/bin` directory.
 
@@ -39,6 +39,15 @@ gtodo update -id 1 -cat "Blog"
 # Delete a task
 gtodo delete -id 1
 ```
+
+## Uninstall
+To uninstall the gtodo CLI app that you installed using ﻿go install, you can run the following command in your terminal:
+
+```bash
+go clean -i github.com/heybran/gtodo
+```
+
+This will remove the gtodo binary from your `$GOPATH/bin` directory. If you want to remove the source code as well, you can delete the directory `$GOPATH/src/github.com/heybran/gtodo`.
   
 ## Contributing
 If you find a bug or have a feature request, please open an issue on the GitHub repository. Pull requests are also welcome!
