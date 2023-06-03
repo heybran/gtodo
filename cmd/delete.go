@@ -27,6 +27,6 @@ func DeleteTask(todos *todo.Todos, args []string) {
 		log.Fatal(err)
 	}
 
-	todos.Print(2)
+	todos.Print(2, "")
 	fmt.Println("Todo item deleted successfully.")
 }
