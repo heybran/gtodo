@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alexeyco/simpletable"
 	"log"
 	"os"
-	"time"
 	"strings"
+	"time"
+
+	"github.com/alexeyco/simpletable"
 )
 
 // todo struct
 type item struct {
+	ID          int
 	Task        string
 	Category    string
 	Done        bool
@@ -23,15 +25,22 @@ type item struct {
 // []item - slice
 type Todos []item
 
+// nextID will keep track of the next available ID for a new task
+var nextID int
+
 // Add will add a new task to slice Todos
 func (t *Todos) Add(task string, cat string) {
 	todo := item{
+		ID:          nextID,
 		Task:        task,
 		Category:    cat,
 		Done:        false,
 		CreatedAt:   time.Now(),
 		CompletedAt: nil, // set to nil instead of time.Time{}
 	}
+
+	// Increment nextID for the next task
+	nextID++
 
 	// add a new task to Todos slice
 	*t = append(*t, todo)
@@ -52,18 +61,20 @@ func (t *Todos) Add(task string, cat string) {
 // }
 
 // Update will update task related to specific id
-func (t *Todos) Update(index int, task string, cat string, done int) error {
+func (t *Todos) Update(id int, task string, cat string, done int) error {
 	ls := *t
-	if index <= 0 || index > len(ls) {
-		return errors.New("invalid index")
+
+	index := t.getIndexByID(id)
+	if index == -1 {
+		return errors.New("invalid ID")
 	}
 
 	if len(task) != 0 {
-		ls[index-1].Task = task
+		ls[index].Task = task
 	}
 
 	if len(cat) != 0 {
-		ls[index-1].Category = cat
+		ls[index].Category = cat
 	}
 
 	// The error occurs because we are trying to assign a value of type time.Time
@@ -72,25 +83,26 @@ func (t *Todos) Update(index int, task string, cat string, done int) error {
 	// and assign it to CompletedAt.
 	// By using &completedAt, we create a new pointer to time.Time that points to the completedAt variable
 	if done == 0 {
-		ls[index-1].Done = false
-		ls[index-1].CompletedAt = nil
+		ls[index].Done = false
+		ls[index].CompletedAt = nil
 	} else if done == 1 {
-		ls[index-1].Done = true
+		ls[index].Done = true
 		completedAt := time.Now()
-		ls[index-1].CompletedAt = &completedAt // create a new pointer to time.Time
+		ls[index].CompletedAt = &completedAt // create a new pointer to time.Time
 	}
 
 	return nil
 }
 
 // Delete will delete requested task from slice Todos
-func (t *Todos) Delete(index int) error {
+func (t *Todos) Delete(id int) error {
 	ls := *t
-	if index <= 0 || index > len(ls) {
-		return errors.New("invalid index")
+	index := t.getIndexByID(id)
+	if index == -1 {
+		return errors.New("invalid ID")
 	}
 
-	*t = append(ls[:index-1], ls[index:]...)
+	*t = append(ls[:index], ls[index+1:]...)
 
 	return nil
 }
@@ -109,6 +121,17 @@ func (t *Todos) Load(filename string) error {
 	err = json.Unmarshal(data, t)
 	if err != nil {
 		return err
+	}
+
+	// Update nextID based on the loaded tasks
+	if len(*t) > 0 {
+		maxID := (*t)[0].ID
+		for _, todo := range *t {
+			if todo.ID > maxID {
+				maxID = todo.ID
+			}
+		}
+		nextID = maxID + 1
 	}
 
 	return nil
@@ -169,8 +192,7 @@ func (t *Todos) Print(status int, cat string) {
 		}
 	}
 
-	for i, item := range requestedCatTodos {
-		i++
+	for _, item := range requestedCatTodos {
 		task := item.Task
 		done := "No"
 		completedAt := ""
@@ -185,7 +207,7 @@ func (t *Todos) Print(status int, cat string) {
 		}
 
 		cells = append(cells, *&[]*simpletable.Cell{
-			{Text: fmt.Sprintf("%d", i)},
+			{Text: fmt.Sprintf("%d", item.ID)},
 			{Text: item.Category},
 			{Text: task},
 			{Text: done},
@@ -217,4 +239,16 @@ func (t *Todos) CountPending() int {
 	}
 
 	return total
+}
+
+// getIndexByID returns the index from a given item's id
+func (t *Todos) getIndexByID(id int) int {
+	index := -1
+	for i, todo := range *t {
+		if todo.ID == id {
+			index = i
+			break
+		}
+	}
+	return index
 }
