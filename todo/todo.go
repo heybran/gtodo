@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"strings"
 )
 
 // todo struct
@@ -124,7 +125,7 @@ func (t *Todos) Store(filename string) error {
 }
 
 // Print will print out the current todo tasks
-func (t *Todos) Print(status int) {
+func (t *Todos) Print(status int, cat string) {
 	table := simpletable.New()
 
 	table.Header = &simpletable.Header{
@@ -160,7 +161,15 @@ func (t *Todos) Print(status int) {
 		}
 	}
 
-	for i, item := range requestedTodos {
+	requestedCatTodos := []item{}
+
+	for _, todo := range requestedTodos {
+		if strings.ToLower(todo.Category) == strings.ToLower(cat) || cat == "" {
+			requestedCatTodos = append(requestedCatTodos, todo)
+		}
+	}
+
+	for i, item := range requestedCatTodos {
 		i++
 		task := item.Task
 		done := "No"

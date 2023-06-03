@@ -31,6 +31,8 @@ gtodo add -task "Recording tutorials on web components :host selector" -cat "Tut
 
 # List all tasks
 gtodo list
+gtodo list -done 1 # list tasks that are completed
+gtodo list -done 1 -cat "Project" # list tasks that are completed and belong to category "Project"
 
 # Update an existing task
 gtodo update -id 1 -task "Hrmm, maybe write a blog post about :host selector instead"
